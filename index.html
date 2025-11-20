@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IssueLogger</title>
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: "Segoe UI", sans-serif;
+    color: #fff;
+    height: 100vh;
+    background: url("https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80") center/cover no-repeat fixed;
+    position: relative;
+}
+
+.overlay-bg {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 0;
+}
+
+/* NAVBAR */
+.navbar {
+    position: absolute;
+    top: 20px; right: 20px; 
+    display: flex;
+    gap: 12px;
+    z-index: 2;
+}
+
+.nav-btn {
+    background: none;
+    color: #fff;
+    border: 2px solid #fff;
+    padding: 10px 22px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.nav-btn:hover {
+    background: #fff;
+    color: #000;
+}
+
+/* HERO */
+.hero {
+    height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    text-align: center;
+    padding: 0 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.hero h1 {
+    font-size: 4rem;
+    font-weight: 900;
+    margin-bottom: 15px;
+}
+.hero p {
+    font-size: 1.2rem;
+    opacity: 0.85;
+    max-width: 640px;
+    margin-bottom: 35px;
+}
+
+.btn-main {
+    background: #fff;
+    color: #000;
+    padding: 14px 36px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: 0.2s;
+}
+.btn-main:hover {
+    background: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+}
+
+/* MODALS */
+.modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.65);
+    display: none;
+    justify-content: center; align-items: center;
+    z-index: 10;
+}
+
+.modal-content {
+    background: #fff;
+    color: #000;
+    padding: 40px 30px;
+    width: 350px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.modal-content h2 { margin-bottom: 18px; font-weight: 800; }
+
+.modal-content input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #000;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+.modal-content button {
+    width: 100%;
+    padding: 12px;
+    background: #000; color: #fff;
+    border: none; border-radius: 8px;
+    cursor: pointer; font-size: 16px; font-weight: 700;
+}
+.modal-content button:hover {
+    background: #fff; color: #000; border: 2px solid #000;
+}
+
+.close-btn {
+    margin-top: 10px;
+    background: none;
+    border: 2px solid #000;
+    color: #000;
+}
+.close-btn:hover {
+    background: #000;
+    color: #fff;
+}
+</style>
+</head>
+
+<body>
+<div class="overlay-bg"></div>
+
+<!-- TOP RIGHT NAV -->
+<div class="navbar">
+    <button class="nav-btn" onclick="openLogin()">Login</button>
+    <button class="nav-btn" onclick="openSignup()">Signup</button>
+</div>
+
+<!-- HERO SECTION -->
+<section class="hero">
+    <h1>IssueLogger</h1>
+    <p>A minimal and powerful system designed to help teams report, track, and resolve issues with clarity.</p>
+    <a href="main.html" class="btn-main">Open App</a>
+</section>
+
+<!-- LOGIN MODAL -->
+<div class="modal" id="loginModal">
+    <div class="modal-content">
+        <h2>Login</h2>
+        <input type="email" placeholder="Email">
+        <input type="password" placeholder="Password">
+        <button>Login</button>
+        <button class="close-btn" onclick="closeLogin()">Close</button>
+    </div>
+</div>
+
+<!-- SIGNUP MODAL -->
+<div class="modal" id="signupModal">
+    <div class="modal-content">
+        <h2>Sign Up</h2>
+        <input type="text" placeholder="Full Name">
+        <input type="email" placeholder="Email">
+        <input type="password" placeholder="Password">
+        <button>Create Account</button>
+        <button class="close-btn" onclick="closeSignup()">Close</button>
+    </div>
+</div>
+
+<script>
+function openLogin() { document.getElementById("loginModal").style.display = "flex"; }
+function closeLogin() { document.getElementById("loginModal").style.display = "none"; }
+function openSignup() { document.getElementById("signupModal").style.display = "flex"; }
+function closeSignup() { document.getElementById("signupModal").style.display = "none"; }
+</script>
+
+</body>
+</html>
