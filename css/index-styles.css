@@ -1,0 +1,425 @@
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
+
+body {
+    font-family: "Segoe UI", sans-serif;
+    color: #fff;
+    background: #000;
+}
+
+.hero-section {
+    height: 100vh;
+    background: url("https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80") center/cover no-repeat fixed;
+    position: relative;
+}
+
+.overlay-bg {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 0;
+}
+
+/* HERO */
+.hero {
+    height: 100vh;
+    display: flex; 
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center;
+    text-align: center;
+    padding: 0 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.hero h1 {
+    font-size: 4rem;
+    font-weight: 900;
+    margin-bottom: 15px;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    opacity: 0.85;
+    max-width: 640px;
+    margin-bottom: 35px;
+}
+
+.btn-main {
+    background: #fff;
+    color: #000;
+    padding: 14px 36px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    border-radius: 10px;
+    border: 2px solid #fff;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-main:hover {
+    background: transparent;
+    color: #fff;
+}
+
+/* INFO SECTIONS */
+.info-section {
+    padding: 80px 20px;
+    background: #fff;
+    color: #000;
+}
+
+.info-section:nth-child(even) {
+    background: #f7f7f7;
+}
+
+.info-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.info-section h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.info-section p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    max-width: 800px;
+    margin: 0 auto 40px;
+    text-align: center;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 50px;
+}
+
+.feature-card {
+    background: #fff;
+    border: 2px solid #000;
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.feature-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.feature-card p {
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.footer {
+    background: #000;
+    color: #fff;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+/* ANIMATED BACKGROUND FOR MODALS */
+.animated-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.animated-bg::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(0, 123, 255, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 0, 150, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(0, 255, 135, 0.3) 0%, transparent 50%);
+    animation: moveGradient 20s ease infinite;
+}
+
+@keyframes moveGradient {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(-10%, -10%) rotate(120deg); }
+    66% { transform: translate(10%, 10%) rotate(240deg); }
+}
+
+.floating-shapes {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+.shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.4;
+    animation: float 15s ease-in-out infinite;
+}
+
+.shape:nth-child(1) {
+    width: 300px;
+    height: 300px;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.shape:nth-child(2) {
+    width: 250px;
+    height: 250px;
+    background: linear-gradient(45deg, #f093fb, #f5576c);
+    bottom: 20%;
+    right: 15%;
+    animation-delay: 3s;
+}
+
+.shape:nth-child(3) {
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(45deg, #4facfe, #00f2fe);
+    top: 50%;
+    left: 50%;
+    animation-delay: 6s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -30px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+}
+
+/* AUTH SELECTION MODAL */
+.auth-modal {
+    position: fixed;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%;
+    background: rgba(0,0,0,0.75);
+    display: none;
+    justify-content: center; 
+    align-items: center;
+    z-index: 10;
+}
+
+.auth-modal-content {
+    background: #fff;
+    color: #000;
+    padding: 50px 40px;
+    width: 400px;
+    border-radius: 16px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.auth-modal-content h2 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    font-weight: 800;
+}
+
+.auth-modal-content p {
+    margin-bottom: 30px;
+    opacity: 0.7;
+}
+
+.auth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.auth-option-btn {
+    width: 100%;
+    padding: 16px;
+    background: #000;
+    color: #fff;
+    border: 2px solid #000;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    transition: 0.2s;
+}
+
+.auth-option-btn:hover {
+    background: #fff;
+    color: #000;
+}
+
+.auth-option-btn.secondary {
+    background: #fff;
+    color: #000;
+}
+
+.auth-option-btn.secondary:hover {
+    background: #000;
+    color: #fff;
+}
+
+.google-btn {
+    background: #fff;
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ddd;
+    font-weight: 600;
+}
+
+.google-btn:hover {
+    background: #f8f8f8;
+    border-color: #000;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 10px 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ddd;
+}
+
+.divider span {
+    padding: 0 15px;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* LOGIN/SIGNUP MODALS */
+.modal {
+    position: fixed;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    justify-content: center; 
+    align-items: center;
+    z-index: 11;
+}
+
+.modal-content {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    color: #000;
+    padding: 40px 30px;
+    width: 350px;
+    border-radius: 16px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.modal-content h2 { 
+    margin-bottom: 18px; 
+    font-weight: 800; 
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #000;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    transition: 0.2s;
+}
+
+.modal-content input:focus {
+    outline: none;
+    background: #fff;
+    transform: scale(1.02);
+}
+
+.modal-content button {
+    width: 100%;
+    padding: 12px;
+    background: #000; 
+    color: #fff;
+    border: none; 
+    border-radius: 8px;
+    cursor: pointer; 
+    font-size: 16px; 
+    font-weight: 700;
+    margin-top: 5px;
+    transition: 0.2s;
+}
+
+.modal-content button:hover {
+    background: #fff; 
+    color: #000; 
+    border: 2px solid #000;
+    transform: translateY(-2px);
+}
+
+.close-btn {
+    margin-top: 10px;
+    background: none;
+    border: 2px solid #000;
+    color: #000;
+}
+
+.close-btn:hover {
+    background: #000;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.error-message {
+    color: #d32f2f;
+    font-size: 14px;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    display: none;
+    font-weight: 600;
+}
+
+.success-message {
+    color: #388e3c;
+    font-size: 14px;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    display: none;
+    font-weight: 600;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .hero h1 { font-size: 2.5rem; }
+    .hero p { font-size: 1rem; }
+    .info-section h2 { font-size: 2rem; }
+    .auth-modal-content { width: 90%; padding: 40px 30px; }
+    .modal-content { width: 90%; }
+}

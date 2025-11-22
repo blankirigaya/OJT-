@@ -1,0 +1,193 @@
+@font-face {
+  font-family: "Mona Sans";
+  src: url("https://assets.codepen.io/64/Mona-Sans.woff2")
+      format("woff2 supports variations"),
+    url("https://assets.codepen.io/64/Mona-Sans.woff2")
+      format("woff2-variations");
+  font-weight: 100 1000;
+}
+
+@layer properties {
+  @property --bg-position {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 100;
+  }
+  @property --after-blur {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 0;
+  }
+  @property --after-opacity {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 1;
+  }
+  @property --before-opacity {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 0.3;
+  }
+  @property --btn-offset {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 1;
+  }
+  @property --btn-scale {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 1;
+  }
+}
+
+.concept-two {
+	display: grid;
+	grid: 100% / repeat(12, 1fr);
+	padding: 5em 15em;
+	.hover {
+		position: relative;
+		display: grid;
+		place-items: center;
+	}
+	h1 {
+		color: transparent;
+		text-align: 0 1px 1px;
+		-webkit-text-stroke: 2px #fff;
+		text-shadow: none;
+		transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+	}
+	.hover:hover h1 {
+		transform: scale(1.5);
+		color: #fff;
+		-webkit-text-stroke: 2px transparent;
+		text-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+	}
+}
+
+:root {
+  --debug: 0;
+  --btn-bg: hsl(0, 0%, 0%);
+  --btn-border-width: 1.5;
+  --btn-offset: 1;
+  --btn-scale: 1;
+  --after-bg: linear-gradient(
+    to right,
+    rgb(0 0 0),
+    rgb(0 0 0),
+    rgb(0 0 0),
+    rgb(0 0 0),
+    rgb(0 0 0),
+    rgb(0 0 0),
+    rgb(0 0 0),
+    rgb(0 0 0),
+    rgb(0 0 0),
+    rgb(0 0 0),
+    rgb(0 0 0),
+    rgb(0 0 0),
+    rgb(0 0 0)
+  );
+  --after-blur: 10;
+  --after-opacity: 1;
+  --after-pos-y: 10;
+  --before-opacity: 0.3;
+  --bg-position: 100;
+  --color-white: hsl(0, 0%, 100%);
+  --color-cyan: hsl(180, 100%, 50%);
+  --color-blue: hsl(240, 100%, 50%);
+  --color-purple: hsl(270, 100%, 50%);
+  --color-pink: hsl(330, 40%, 70%);
+  --color-red: hsl(0, 100%, 50%);
+  --color-yellow: hsl(60, 100%, 50%);
+  --color-lime: hsl(90, 100%, 75%);
+}
+
+.hero button {
+  all: unset;
+  background: transparent;
+  border-width: 0;
+  transform: scale(var(--btn-scale));
+  transition:
+    --bg-position 3s ease,
+    --after-blur 0.3s ease,
+    --before-opacity 0.3s ease,
+    --btn-offset 0.3s ease,
+    --btn-scale 0.2s cubic-bezier(.76,-0.25,.51,1.13);
+}
+
+.hero button > div {
+  display: block;
+  padding: 0.8em 1.2em;
+  background: var(--btn-bg);
+  color: white;
+  font-weight: bold;
+  border-radius: 8px;
+  font-size: 22px;
+  position: relative;
+  cursor: pointer;
+}
+
+.hero button > div:not(:hover) {
+  transition: --after-blur 0.3s ease;
+}
+
+.hero button > div > span {
+  background: linear-gradient(
+      to right,
+      var(--color-white),var(--color-white),var(--color-cyan),
+      var(--color-blue),var(--color-purple),var(--color-pink),
+      var(--color-red),var(--color-yellow),var(--color-lime),
+      var(--color-white),var(--color-white)
+    )
+    no-repeat calc(var(--bg-position) * 1%) 0% / 900%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.15ch;
+  font-weight: 600;
+}
+
+.hero button > div:after {
+  content: "";
+  position: absolute;
+  width: 100%; height: 100%;
+  background: var(--after-bg) no-repeat calc(var(--bg-position) * 1%) 0% / 900%;
+  transform: translateY(calc(var(--after-pos-y) * 1px));
+  left: 0; top: 0;
+  z-index: -2;
+  filter: blur(calc(var(--after-blur) * 1px));
+  opacity: var(--after-opacity);
+}
+
+.hero button > div:before {
+  content: "";
+  position: absolute;
+  width: calc(100% + calc(var(--btn-border-width) * 2px));
+  height: calc(100% + calc(var(--btn-border-width) * 2px));
+  background: linear-gradient(
+      to right,
+      var(--color-white),var(--color-white),var(--color-cyan),
+      var(--color-blue),var(--color-purple),var(--color-pink),
+      var(--color-red),var(--color-yellow),var(--color-lime),
+      var(--color-white),var(--color-white)
+    )
+    no-repeat calc(var(--bg-position) * 1%) 0% / 900%;
+  border-radius: 9px;
+  z-index: -1;
+  top: calc(var(--btn-border-width) * -1px);
+  left: calc(var(--btn-border-width) * -1px);
+  opacity: var(--before-opacity);
+}
+
+.hero button:hover {
+  --btn-scale: 1.05;
+  --bg-position: 0;
+  --after-blur: 30;
+  --after-opacity: 0.3;
+  --after-pos-y: 0;
+  --before-opacity: 1;
+  --btn-offset: 5;
+}
+
+.hero button:hover:active {
+  --btn-scale: 0.98;
+  --after-blur: 15;
+}
