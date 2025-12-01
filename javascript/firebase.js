@@ -4,7 +4,7 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, up
 
 // Firebase configuration
 const firebaseConfig = {
-    apiKey: "${FIREBASE_API_KEY}",
+    apiKey: "AIzaSyBeqThBgikkUrn_HytZHFUxPs19kJsFHXo",
     authDomain: "issuelogger-522de.firebaseapp.com",
     projectId: "issuelogger-522de",
     storageBucket: "issuelogger-522de.firebasestorage.app",

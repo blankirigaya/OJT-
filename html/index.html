@@ -4,96 +4,117 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IssueLogger</title>
-<link rel="stylesheet" href="/OJT-/css/index-styles.css">
-<link rel="stylesheet" href="/OJT-/css/button.css">
-
+<link rel="stylesheet" href="../css/index-styles.css">
 </head>
 
 <body>
-<!-- HERO SECTION -->
+<!-- HERO SECTION (UNCHANGED) -->
 <div class="hero-section">
     <div class="overlay-bg"></div>
 
-    <!-- HERO -->
     <section class="hero">
-       
-  <div class="concept concept-two">
-    <div class="hover"><h1>I</h1></div>
-    <div class="hover"><h1>S</h1></div>
-    <div class="hover"><h1>S</h1></div>
-    <div class="hover"><h1>U</h1></div>
-    <div class="hover"><h1>E</h1></div>
-    <div class="hover"><h1></h1></div>
-    <div class="hover"><h1>L</h1></div>
-    <div class="hover"><h1>O</h1></div>
-    <div class="hover"><h1>G</h1></div>
-    <div class="hover"><h1>G</h1></div>
-    <div class="hover"><h1>E</h1></div>
-    <div class="hover"><h1>R</h1></div>
-  </div>
+       <div class="concept concept-two">
+            <div class="hover"><h1>I</h1></div>
+            <div class="hover"><h1>S</h1></div>
+            <div class="hover"><h1>S</h1></div>
+            <div class="hover"><h1>U</h1></div>
+            <div class="hover"><h1>E</h1></div>
+            <div class="hover"><h1></h1></div>
+            <div class="hover"><h1>L</h1></div>
+            <div class="hover"><h1>O</h1></div>
+            <div class="hover"><h1>G</h1></div>
+            <div class="hover"><h1>G</h1></div>
+            <div class="hover"><h1>E</h1></div>
+            <div class="hover"><h1>R</h1></div>
+        </div>
 
-         <button>
-    <div>
-      <span onclick="openAuthSelection()">Join today!</span>
-    </div>
-  </button>
+        <button>
+            <div>
+                <span onclick="openAuthSelection()">Join today!</span>
+            </div>
+        </button>
     </section>
 </div>
 
-<!-- FEATURES SECTION -->
-<div class="info-section">
-    <div class="info-container">
+<!-- REDESIGNED FEATURES SECTION -->
+<section class="features-section">
+    <div class="section-header">
+        <span class="section-label">Features</span>
         <h2>Why IssueLogger?</h2>
         <p>Streamline your workflow with our intuitive issue tracking system. Built for teams who value simplicity and efficiency.</p>
+    </div>
+    
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">📝</div>
+            <h3>Easy Reporting</h3>
+            <p>Submit issues quickly with our simple, user-friendly interface. No complicated forms or unnecessary fields.</p>
+        </div>
         
-        <div class="features-grid">
-            <div class="feature-card">
-                <h3>📝 Easy Reporting</h3>
-                <p>Submit issues quickly with our simple, user-friendly interface. No complicated forms or unnecessary fields.</p>
-            </div>
-            
-            <div class="feature-card">
-                <h3>🔍 Smart Tracking</h3>
-                <p>Keep track of all reported issues in one place. Filter by priority, category, and status.</p>
-            </div>
-            
-            <div class="feature-card">
-                <h3>⚡ Real-time Updates</h3>
-                <p>Get instant notifications when issues are updated or resolved. Stay in the loop effortlessly.</p>
-            </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔍</div>
+            <h3>Smart Tracking</h3>
+            <p>Keep track of all reported issues in one place. Filter by priority, category, and status.</p>
+        </div>
+        
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Real-time Updates</h3>
+            <p>Get instant notifications when issues are updated or resolved. Stay in the loop effortlessly.</p>
         </div>
     </div>
-</div>
+</section>
 
-<!-- HOW IT WORKS SECTION -->
-<div class="info-section">
-    <div class="info-container">
+<!-- REDESIGNED HOW IT WORKS SECTION -->
+<section class="workflow-section">
+    <div class="section-header">
+        <span class="section-label">Process</span>
         <h2>How It Works</h2>
         <p>Getting started with IssueLogger is simple. Just three easy steps to better issue management.</p>
+    </div>
+    
+    <div class="steps-container">
+        <div class="step-timeline"></div>
         
-        <div class="features-grid">
-            <div class="feature-card">
+        <div class="step-item">
+            <div class="step-content">
                 <h3>1. Create Account</h3>
-                <p>Sign up with your email and create your account in seconds.</p>
+                <p>Sign up with your email and create your account in seconds. No credit card required, no complicated setup.</p>
             </div>
-            
-            <div class="feature-card">
+            <div class="step-visual">
+                <span>👤</span>
+            </div>
+            <div class="step-number">1</div>
+        </div>
+        
+        <div class="step-item">
+            <div class="step-content">
                 <h3>2. Report Issues</h3>
-                <p>Submit bug reports or feature requests with detailed descriptions.</p>
+                <p>Submit bug reports or feature requests with detailed descriptions. Our smart form makes it quick and easy.</p>
             </div>
-            
-            <div class="feature-card">
+            <div class="step-visual">
+                <span>🐛</span>
+            </div>
+            <div class="step-number">2</div>
+        </div>
+        
+        <div class="step-item">
+            <div class="step-content">
                 <h3>3. Track Progress</h3>
-                <p>Monitor all your issues and watch them get resolved in real-time.</p>
+                <p>Monitor all your issues and watch them get resolved in real-time. Stay updated with notifications and status changes.</p>
             </div>
+            <div class="step-visual">
+                <span>📊</span>
+            </div>
+            <div class="step-number">3</div>
         </div>
     </div>
-</div>
+</section>
 
 <!-- FOOTER -->
-<div class="footer">
-    <p>&copy; 2025 IssueLogger. Built with ❤️ for better team collaboration.</p>
-</div>
+<footer class="footer">
+    <p>© 2025 IssueLogger. Built with ❤️ for better team collaboration.</p>
+</footer>
 
 <!-- AUTH SELECTION MODAL -->
 <div class="auth-modal" id="authModal">
@@ -145,8 +166,6 @@
         <button class="close-btn" onclick="closeSignup()">Back</button>
     </div>
 </div>
-<script type="module" src="/OJT-/javascript/firebase.js"></script>
 
-
-</body>
-</html>
+<script type="module" src="../javascript/firebase.js"></script>
+</body> 
