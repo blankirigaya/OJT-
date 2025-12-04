@@ -75,7 +75,7 @@
 <!-- Issue Details Modal -->
 <div class="issue-details-modal" id="issueDetailsModal">
     <div class="issue-details-content">
-        <button class="close-details-btn" onclick="closeIssueDetails()">Close</button>
+        <button class="ewiw" onclick="closeIssueDetails()">X</button>
         <div id="issueDetailsContent"></div>
     </div>
 </div>
@@ -289,7 +289,7 @@ function renderTeam(team, currentUserId) {
                         <div class="member-email">${memberData.email}</div>
                     </div>
                     ${isOwner && !isCurrentUser ? `
-                        <button class="remove-member-btn" onclick="removeMember('${uid}', '${escapeHtml(memberData.email)}')">✕</button>
+                        <button class="close-details-btn" onclick="removeMember('${uid}', '${escapeHtml(memberData.email)}')">✕</button>
                     ` : ''}
                 </div>
             `;
