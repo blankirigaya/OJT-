@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Issue Reporting System</title>
-    <link rel="stylesheet" href="/OJT-/css/styles.css">
-   </head>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
 
 <body>
 
@@ -14,17 +14,14 @@
     <button class="logout-btn" onclick="handleLogout()">Logout</button>
 </div>
 
-<button class="hamburger-btn" id="hamburgerBtn">
-    <span></span><span></span><span></span>
-</button>
-<div class="overlay" id="overlay"></div>
-
-<div class="sidebar" id="sidebar">
-    <h2>Recent Issues</h2>
-    <div id="issuesList"></div>
-</div>
-
 <div class="main-container">
+    <!-- Team Panel -->
+    <div class="team-panel">
+        <h2>👥 My Team</h2>
+        <div id="teamContent"></div>
+    </div>
+
+    <!-- Form Container -->
     <div class="form-container">
         <h1>Report an Issue</h1>
         <p>Help us improve by reporting bugs or requesting features</p>
@@ -61,26 +58,48 @@
 
             <div class="form-group">
                 <label>Description *</label>
-                <textarea id="description" required></textarea>
+                <textarea id="description" required placeholder="Describe the issue in detail..."></textarea>
             </div>
 
             <button type="submit" class="submit-btn">Submit Issue</button>
         </form>
     </div>
-</div>
-<!-- <script src="/OJT-/javascript/script.js"></script> -->
 
-<script type="module">
-// Import Firebase modules
+    <!-- Issues Sidebar -->
+    <div class="issues-sidebar">
+        <h2>📋 Recent Issues</h2>
+        <div id="issuesList"></div>
+    </div>
+</div>
+
+<!-- Issue Details Modal -->
+<div class="issue-details-modal" id="issueDetailsModal">
+    <div class="issue-details-content">
+        <button class="close-details-btn" onclick="closeIssueDetails()">Close</button>
+        <div id="issueDetailsContent"></div>
+    </div>
+</div>
+
+<!-- Create Team Modal -->
+<div class="modal" id="createTeamModal">
+    <div class="modal-content">
+        <h2>Create a Team</h2>
+        <input type="text" id="teamNameInput" placeholder="Team name (e.g., Engineering Team)" required>
+        <button onclick="createTeam()">Create Team</button>
+        <button class="close-modal-btn" onclick="closeCreateTeamModal()">Cancel</button>
+    </div>
+</div>
+
+<script type="module">// Replace the <script type="module"> in main.html with this updated version
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getDatabase, ref, push, set, onValue, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, push, set, onValue, query, orderByChild, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyBeqThBgikkUrn_HytZHFUxPs19kJsFHXo",
     authDomain: "issuelogger-522de.firebaseapp.com",
-    databaseURL: "https://issuelogger-522de-default-rtdb.asia-southeast1.firebasedatabase.app", //needed to change to asia cause of database nonsense wtf
+    databaseURL: "https://issuelogger-522de-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "issuelogger-522de",
     storageBucket: "issuelogger-522de.firebasestorage.app",
     messagingSenderId: "964094432254",
@@ -88,88 +107,392 @@ const firebaseConfig = {
     measurementId: "G-H92P42RJFD"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const database = getDatabase(app);
 
 let currentUser = null;
+let allIssues = [];
+let currentTeam = null;
+let issuesListener = null;
 
-// Check authentication 
-onAuthStateChanged(auth, (user) => {
+console.log("🔥 Firebase initialized");
+
+async function storeUserEmail(userId, email) {
+    try {
+        await set(ref(database, `users/${userId}/email`), email);
+        const emailKey = email.replace(/\./g, '_').replace(/@/g, '_at_');
+        await set(ref(database, `userEmails/${emailKey}`), userId);
+        console.log("✅ User email stored:", email);
+    } catch (error) {
+        console.error("❌ Error storing user email:", error);
+    }
+}
+
+async function checkPendingInvites(userEmail) {
+    const inviteKey = userEmail.replace(/\./g, '_').replace(/@/g, '_at_');
+    const inviteRef = ref(database, `invites/${inviteKey}`);
+    
+    try {
+        const snapshot = await get(inviteRef);
+        if (snapshot.exists()) {
+            const invite = snapshot.val();
+            console.log("📧 Found pending invite:", invite);
+            
+            // Add user to team
+            await set(ref(database, `teams/${invite.teamId}/members/${currentUser.uid}`), {
+                email: userEmail,
+                joinedAt: Date.now()
+            });
+            
+            // Set user's team
+            await set(ref(database, `users/${currentUser.uid}/teamId`), invite.teamId);
+            
+            // Delete the invite after processing
+            await set(inviteRef, null);
+            
+            console.log("✅ User automatically added to team:", invite.teamName);
+            showSuccessMessage(`🎉 You've been automatically added to ${invite.teamName}!`);
+        } else {
+            console.log("🔭 No pending invites");
+        }
+    } catch (error) {
+        console.error("❌ Error checking invites:", error);
+    }
+}
+
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUser = user;
+        console.log("👤 User authenticated:", user.email, "UID:", user.uid);
+        
         document.getElementById('userInfo').style.display = 'flex';
-        document.getElementById('userEmail').textContent = user.email;
+        // Display user's display name or email if name not available
+        const displayName = user.displayName || user.email.split('@')[0];
+        document.getElementById('userEmail').textContent = displayName;
         document.getElementById('email').value = user.email;
-        // Load user's issues
-        loadUserIssues(user.uid);
+        
+        await storeUserEmail(user.uid, user.email);
+        await checkPendingInvites(user.email);
+        loadUserTeam(user.uid);
     } else {
+        console.log("❌ No user authenticated");
         window.location.href = 'index.html';
     }
 });
 
-// Hamburger menu 
-const hamburgerBtn = document.getElementById("hamburgerBtn");
-const overlay = document.getElementById("overlay");
-const sidebar = document.getElementById("sidebar");
+let teamListener = null;
 
-function toggleSidebar(){
-    sidebar.classList.toggle("open");
-    overlay.classList.toggle("active");
-    hamburgerBtn.classList.toggle("active");
-}
-
-hamburgerBtn.addEventListener("click", toggleSidebar);
-overlay.addEventListener("click", toggleSidebar);
-
-// Load user's issues from Firebase
-function loadUserIssues(userId) {
-    const issuesRef = ref(database, `issues/${userId}`);
-    const issuesQuery = query(issuesRef, orderByChild('timestamp'));
+function loadUserTeam(userId) {
+    console.log("📍 Loading team for user:", userId);
+    const userTeamRef = ref(database, `users/${userId}/teamId`);
     
-    onValue(issuesQuery, (snapshot) => {
-        const issuesContainer = document.getElementById("issuesList");
+    onValue(userTeamRef, async (snapshot) => {
+        const teamId = snapshot.val();
+        console.log("📊 Team ID from database:", teamId);
         
-        if (!snapshot.exists()) {
-            issuesContainer.innerHTML = `<p class="empty-state">No issues reported yet</p>`;
+        // Remove previous team listener
+        if (teamListener) {
+            teamListener();
+        }
+        
+        if (!teamId) {
+            console.log("⚠️ User has no team");
+            renderNoTeam();
+            allIssues = [];
+            renderIssues([]);
+            currentTeam = null;
             return;
         }
         
-        const issues = [];
-        snapshot.forEach((childSnapshot) => {
-            const issue = childSnapshot.val();
-            issue.id = childSnapshot.key;
-            issues.push(issue);
+        const teamRef = ref(database, `teams/${teamId}`);
+        teamListener = onValue(teamRef, (teamSnapshot) => {
+            if (teamSnapshot.exists()) {
+                currentTeam = { id: teamId, ...teamSnapshot.val() };
+                console.log("✅ Team loaded:", currentTeam.name, "Members:", Object.keys(currentTeam.members || {}).length);
+                renderTeam(currentTeam, userId);
+                loadTeamIssues(teamId);
+            } else {
+                console.log("❌ Team not found in database");
+                renderNoTeam();
+                currentTeam = null;
+            }
+        }, (error) => {
+            console.error("❌ Error loading team:", error);
         });
-        
-        // Reverse to show newest first
-        issues.reverse();
-        
-        renderIssues(issues);
+    }, (error) => {
+        console.error("❌ Error loading user team:", error);
     });
 }
 
-// Render issues in sidebar
+function loadTeamIssues(teamId) {
+    console.log("📍 Loading issues for team:", teamId);
+    const issuesRef = ref(database, `teamIssues/${teamId}`);
+    const issuesQuery = query(issuesRef, orderByChild('timestamp'));
+    
+    // Remove previous listener if it exists
+    if (issuesListener) {
+        issuesListener();
+    }
+    
+    // Set up real-time listener for all team issues
+    issuesListener = onValue(issuesQuery, (snapshot) => {
+        console.log("📊 Issues snapshot received");
+        const issuesContainer = document.getElementById("issuesList");
+        
+        if (!snapshot.exists()) {
+            console.log("🔭 No issues found for this team");
+            issuesContainer.innerHTML = `<p class="empty-state">No issues reported yet</p>`;
+            allIssues = [];
+            return;
+        }
+        
+        allIssues = [];
+        snapshot.forEach((childSnapshot) => {
+            const issue = childSnapshot.val();
+            issue.id = childSnapshot.key;
+            allIssues.push(issue);
+            console.log("📝 Issue loaded:", issue.title);
+        });
+        
+        allIssues.reverse();
+        console.log(`✅ Total issues loaded: ${allIssues.length}`);
+        renderIssues(allIssues);
+    }, (error) => {
+        console.error("❌ Error loading team issues:", error);
+        console.error("Error code:", error.code);
+        console.error("Error message:", error.message);
+        
+        if (error.code === 'PERMISSION_DENIED') {
+            alert("⚠️ Permission denied! Please check your Firebase Database Rules.");
+            document.getElementById("issuesList").innerHTML = 
+                `<p class="empty-state" style="color: red;">Permission denied. Check database rules.</p>`;
+        }
+    });
+}
+
+function renderTeam(team, currentUserId) {
+    const teamContent = document.getElementById('teamContent');
+    const isOwner = team.ownerId === currentUserId;
+    const userRole = isOwner ? 'Owner' : 'Member';
+    
+    let membersHtml = '';
+    if (team.members) {
+        membersHtml = Object.entries(team.members).map(([uid, memberData]) => {
+            const initials = memberData.email.substring(0, 2).toUpperCase();
+            const isCurrentUser = uid === currentUserId;
+            return `
+                <div class="member-item">
+                    <div class="member-avatar">${initials}</div>
+                    <div class="member-info">
+                        <div class="member-name">${memberData.email.split('@')[0]}${isCurrentUser ? ' (You)' : ''}</div>
+                        <div class="member-email">${memberData.email}</div>
+                    </div>
+                    ${isOwner && !isCurrentUser ? `
+                        <button class="remove-member-btn" onclick="removeMember('${uid}', '${escapeHtml(memberData.email)}')">✕</button>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+    }
+    
+    teamContent.innerHTML = `
+        <div class="team-info">
+            <div class="team-name">${escapeHtml(team.name)}</div>
+            <div class="team-role">${userRole}</div>
+        </div>
+        <div class="team-members">
+            <h3>MEMBERS (${team.members ? Object.keys(team.members).length : 0})</h3>
+            ${membersHtml}
+        </div>
+        ${isOwner ? `
+            <div class="invite-section">
+                <h3>Invite Member</h3>
+                <input type="email" class="invite-input" id="inviteEmail" placeholder="Enter email address">
+                <button class="invite-btn" onclick="inviteMember()">Send Invite</button>
+            </div>
+        ` : ''}
+        <button class="leave-team-btn" onclick="leaveTeam()">Leave Team</button>
+    `;
+}
+
+function renderNoTeam() {
+    const teamContent = document.getElementById('teamContent');
+    teamContent.innerHTML = `
+        <div class="no-team">
+            <p>You're not part of any team yet.</p>
+        </div>
+        <button class="create-team-btn" onclick="openCreateTeamModal()">Create Team</button>
+    `;
+}
+
+window.openCreateTeamModal = function() {
+    document.getElementById('createTeamModal').style.display = 'flex';
+}
+
+window.closeCreateTeamModal = function() {
+    document.getElementById('createTeamModal').style.display = 'none';
+    document.getElementById('teamNameInput').value = '';
+}
+
+window.createTeam = async function() {
+    const teamName = document.getElementById('teamNameInput').value.trim();
+    if (!teamName) {
+        alert('Please enter a team name');
+        return;
+    }
+    if (!currentUser) return;
+    
+    console.log("🗳️ Creating team:", teamName);
+    
+    try {
+        const teamsRef = ref(database, 'teams');
+        const newTeamRef = push(teamsRef);
+        const teamId = newTeamRef.key;
+        
+        console.log("📝 Team ID:", teamId);
+        
+        await set(newTeamRef, {
+            name: teamName,
+            ownerId: currentUser.uid,
+            createdAt: Date.now(),
+            members: {
+                [currentUser.uid]: {
+                    email: currentUser.email,
+                    joinedAt: Date.now()
+                }
+            }
+        });
+        
+        await set(ref(database, `users/${currentUser.uid}/teamId`), teamId);
+        
+        console.log("✅ Team created successfully");
+        showSuccessMessage('Team created successfully!');
+        closeCreateTeamModal();
+    } catch (error) {
+        console.error('❌ Error creating team:', error);
+        alert('Failed to create team. Please try again.');
+    }
+}
+
+window.removeMember = async function(memberId, memberEmail) {
+    if (!currentTeam) return;
+    
+    const confirmed = confirm(`Are you sure you want to remove ${memberEmail} from the team?`);
+    if (!confirmed) return;
+    
+    console.log("🗑️ Removing member:", memberId, memberEmail);
+    
+    try {
+        // Remove from team members
+        await set(ref(database, `teams/${currentTeam.id}/members/${memberId}`), null);
+        
+        // Clear user's team assignment
+        await set(ref(database, `users/${memberId}/teamId`), null);
+        
+        console.log("✅ Member removed successfully");
+        showSuccessMessage(`${memberEmail} has been removed from the team`);
+    } catch (error) {
+        console.error('❌ Error removing member:', error);
+        alert('Failed to remove member: ' + error.message);
+    }
+}
+
+window.leaveTeam = async function() {
+    if (!currentTeam || !currentUser) return;
+    
+    const confirmed = confirm(`Are you sure you want to leave ${currentTeam.name}? You'll no longer see this team's issues.`);
+    if (!confirmed) return;
+    
+    console.log("👋 Leaving team:", currentTeam.name);
+    
+    try {
+        // Remove from team members
+        await set(ref(database, `teams/${currentTeam.id}/members/${currentUser.uid}`), null);
+        
+        // Clear user's team assignment
+        await set(ref(database, `users/${currentUser.uid}/teamId`), null);
+        
+        console.log("✅ Left team successfully");
+        showSuccessMessage(`You've left ${currentTeam.name}`);
+        
+        // Reset UI
+        currentTeam = null;
+        allIssues = [];
+        renderNoTeam();
+        renderIssues([]);
+    } catch (error) {
+        console.error('❌ Error leaving team:', error);
+        alert('Failed to leave team: ' + error.message);
+    }
+}
+
+window.inviteMember = async function() {
+    const email = document.getElementById('inviteEmail').value.trim();
+    if (!email) {
+        alert('Please enter an email address');
+        return;
+    }
+    if (!currentTeam) return;
+    
+    console.log("📧 Inviting member:", email);
+    
+    try {
+        const emailKey = email.replace(/\./g, '_').replace(/@/g, '_at_');
+        const emailLookupRef = ref(database, `userEmails/${emailKey}`);
+        const emailSnapshot = await get(emailLookupRef);
+        
+        if (emailSnapshot.exists()) {
+            // User already exists, add them directly
+            const foundUserId = emailSnapshot.val();
+            console.log("✅ User found:", foundUserId);
+            
+            await set(ref(database, `teams/${currentTeam.id}/members/${foundUserId}`), {
+                email: email,
+                joinedAt: Date.now()
+            });
+            await set(ref(database, `users/${foundUserId}/teamId`), currentTeam.id);
+            showSuccessMessage('Member added to team!');
+        } else {
+            // User doesn't exist yet, create pending invite
+            console.log("📮 User not found, creating invite");
+            const inviteKey = email.replace(/\./g, '_').replace(/@/g, '_at_');
+            const invitesRef = ref(database, `invites/${inviteKey}`);
+            await set(invitesRef, {
+                teamId: currentTeam.id,
+                teamName: currentTeam.name,
+                invitedBy: currentUser.email,
+                invitedAt: Date.now()
+            });
+            showSuccessMessage('Invitation sent! They will be automatically added when they sign up.');
+        }
+        
+        document.getElementById('inviteEmail').value = '';
+    } catch (error) {
+        console.error('❌ Error inviting member:', error);
+        alert('Failed to invite member: ' + error.message);
+    }
+}
+
 function renderIssues(issues){
     const container = document.getElementById("issuesList");
-    
     if(issues.length === 0){
         container.innerHTML = `<p class="empty-state">No issues reported yet</p>`;
         return;
     }
-    
     container.innerHTML = issues.map(issue => {
         const timeAgo = getTimeAgo(issue.timestamp);
         const priorityClass = issue.priority.toLowerCase();
-        
+        const submitterName = issue.submitterEmail ? issue.submitterEmail.split('@')[0] : 'Unknown';
         return `
-            <div class="issue-card" data-id="${issue.id}">
+            <div class="issue-card" data-id="${issue.id}" onclick="showIssueDetails('${issue.id}')">
                 <div class="issue-title">${escapeHtml(issue.title)}</div>
                 <div class="issue-meta">
                     <span class="priority-badge ${priorityClass}">${issue.priority}</span>
                     <span>•</span>
-                    <span>${issue.category === 'bug' ? 'Bug' : 'Feature'}</span>
+                    <span>${issue.category === 'bug' ? '🐛 Bug' : '✨ Feature'}</span>
+                    <span>•</span>
+                    <span>${submitterName}</span>
                     <span>•</span>
                     <span>${timeAgo}</span>
                 </div>
@@ -178,9 +501,59 @@ function renderIssues(issues){
     }).join("");
 }
 
-// Handle submission (nice)
-const issueForm = document.getElementById("issueForm");
+window.showIssueDetails = function(issueId) {
+    const issue = allIssues.find(i => i.id === issueId);
+    if (!issue) return;
+    const modal = document.getElementById('issueDetailsModal');
+    const content = document.getElementById('issueDetailsContent');
+    const priorityClass = issue.priority.toLowerCase();
+    const date = new Date(issue.timestamp);
+    content.innerHTML = `
+        <h2>${escapeHtml(issue.title)}</h2>
+        <div class="detail-row">
+            <div class="detail-label">Submitted By</div>
+            <div class="detail-value">${escapeHtml(issue.submitterEmail || issue.email)}</div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">Submitted</div>
+            <div class="detail-value">${date.toLocaleString()}</div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">Priority</div>
+            <div class="detail-value"><span class="priority-badge ${priorityClass}">${issue.priority}</span></div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">Status</div>
+            <div class="detail-value">${issue.status || 'Open'}</div>
+        </div>
+        <div class="detail-row">
+            <div class="detail-label">Description</div>
+            <div class="detail-value" style="white-space: pre-wrap;">${escapeHtml(issue.description)}</div>
+        </div>
+    `;
+    modal.style.display = 'flex';
+    document.querySelectorAll('.issue-card').forEach(card => {
+        card.classList.remove('active');
+    });
+    document.querySelector(`[data-id="${issueId}"]`)?.classList.add('active');
+}
 
+window.closeIssueDetails = function() {
+    document.getElementById('issueDetailsModal').style.display = 'none';
+    document.querySelectorAll('.issue-card').forEach(card => {
+        card.classList.remove('active');
+    });
+}
+
+document.getElementById('issueDetailsModal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeIssueDetails();
+});
+
+document.getElementById('createTeamModal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeCreateTeamModal();
+});
+
+const issueForm = document.getElementById("issueForm");
 issueForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     
@@ -189,103 +562,94 @@ issueForm.addEventListener("submit", async (e) => {
         return;
     }
     
-    // Get form values
+    if (!currentTeam) {
+        alert("You must be part of a team to submit issues");
+        return;
+    }
+    
     const title = document.getElementById("title").value.trim();
     const email = document.getElementById("email").value.trim();
     const priority = document.getElementById("priority").value;
     const category = document.getElementById("category").value;
     const description = document.getElementById("description").value.trim();
     
-    // Validate
     if (!title || !email || !priority || !category || !description) {
         alert("Please fill in all required fields");
         return;
     }
     
-    // Create issue object
     const issue = {
         title: title,
         email: email,
+        submitterEmail: currentUser.email,
+        submitterId: currentUser.uid,
         priority: priority,
         category: category,
         description: description,
         timestamp: Date.now(),
         status: "open",
-        userId: currentUser.uid
+        teamId: currentTeam.id
     };
     
+    console.log("📝 Submitting issue:", issue);
+    
     try {
-        // Save to Firebase
-        const issuesRef = ref(database, `issues/${currentUser.uid}`);
+        const issuesRef = ref(database, `teamIssues/${currentTeam.id}`);
         const newIssueRef = push(issuesRef);
+        
+        console.log("💾 Saving to:", `teamIssues/${currentTeam.id}/${newIssueRef.key}`);
+        
         await set(newIssueRef, issue);
         
-        // Show success message
+        console.log("✅ Issue submitted successfully");
         showSuccessMessage("Issue submitted successfully!");
         
-        // Reset form
         issueForm.reset();
         document.getElementById("email").value = currentUser.email;
-        
     } catch (error) {
-        console.error("Error submitting issue:", error);
-        alert("Failed to submit issue. Please try again.");
+        console.error("❌ Error submitting issue:", error);
+        console.error("Error code:", error.code);
+        console.error("Error message:", error.message);
+        
+        if (error.code === 'PERMISSION_DENIED') {
+            alert("⚠️ Permission denied! Please check your Firebase Database Rules.");
+        } else {
+            alert("Failed to submit issue. Check console for details.");
+        }
     }
 });
-
 
 function getTimeAgo(timestamp) {
     const now = Date.now();
     const diff = now - timestamp;
-    
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
-    
     if (minutes < 1) return "Just now";
     if (minutes < 60) return `${minutes}m ago`;
     if (hours < 24) return `${hours}h ago`;
     if (days < 7) return `${days}d ago`;
-    
     const date = new Date(timestamp);
     return date.toLocaleDateString();
 }
 
-// Utility function to escape HTML
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
-// Show success message
 function showSuccessMessage(message) {
     const successDiv = document.createElement('div');
     successDiv.className = 'success-toast';
     successDiv.textContent = message;
-    successDiv.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #10b981;
-        color: white;
-        padding: 16px 24px;
-        border-radius: 8px;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 10000;
-        animation: slideIn 0.3s ease;
-    `;
-    
     document.body.appendChild(successDiv);
-    
     setTimeout(() => {
-        successDiv.style.animation = 'slideOut 0.3s ease';
+        successDiv.style.animation = 'slideUp 0.3s ease';
         setTimeout(() => successDiv.remove(), 300);
     }, 3000);
 }
 
-// Handle logout
 async function handleLogout() {
     try {
         await signOut(auth);
@@ -297,58 +661,6 @@ async function handleLogout() {
     }
 }
 
-window.handleLogout = handleLogout;
-
-// Add styles
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(400px);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-    
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(400px);
-            opacity: 0;
-        }
-    }
-    
-    .priority-badge {
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
-    
-    .priority-badge.high {
-        background: #fee2e2;
-        color: #dc2626;
-    }
-    
-    .priority-badge.medium {
-        background: #fef3c7;
-        color: #d97706;
-    }
-    
-    .priority-badge.low {
-        background: #dbeafe;
-        color: #2563eb;
-    }
-`;
-document.head.appendChild(style);
-</script>
+window.handleLogout = handleLogout;;</script>
 
 </body>
-</html>
