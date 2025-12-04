@@ -36,7 +36,7 @@ function openAuthSelection() {
     const userId = localStorage.getItem('userId');
     if (userId) {
         // User is already logged in, go directly to app
-        window.location.href = '../html/main.html';
+        window.location.href = 'OJT-/html/main.html';
     } else {
         // Show auth selection modal
         document.getElementById("authModal").style.display = "flex";
@@ -144,7 +144,7 @@ async function handleLogin() {
         localStorage.setItem('userId', userCredential.user.uid);
         
         setTimeout(() => {
-            window.location.href = '../html/main.html';
+            window.location.href = 'OJT-/html/main.html';
         }, 1500);
     } catch (error) {
         let errorMessage = 'Login failed. Please try again.';
@@ -177,7 +177,7 @@ async function handleGoogleLogin() {
         }
         
         // Redirect to main app
-        window.location.href = '../html/main.html';
+        window.location.href = 'OJT-/html/main.html';
     } catch (error) {
         let errorMessage = 'Google sign-in failed. Please try again.';
         
@@ -228,7 +228,7 @@ async function handleSignup() {
         localStorage.setItem('userName', name);
         
         setTimeout(() => {
-            window.location.href = '../html/main.html';
+            window.location.href = 'OJT-/html/main.html';
         }, 100);
     } catch (error) {
         let errorMessage = 'Signup failed. Please try again.';
