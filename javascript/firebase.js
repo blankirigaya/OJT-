@@ -229,7 +229,7 @@ async function handleSignup() {
         
         setTimeout(() => {
             window.location.href = 'main.html';
-        }, 1500);
+        }, 100);
     } catch (error) {
         let errorMessage = 'Signup failed. Please try again.';
         
